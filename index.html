@@ -1,0 +1,499 @@
+import React, { useState, useEffect } from "react";
+
+const BANK_NAME = "TrustSecure Bank";
+const BANK_INITIALS = "TSB";
+
+const USER = {
+  username: "ericjamesmill246810",
+  password: "ericjamesmillk537",
+  name: "Eric James Mill",
+  accountType: "Business Current Account",
+  accountNumber: "1234567897340",
+  maskedAccountNumber: "•••• 7340",
+  customerId: "CUST8937281",
+  routingNumber: "012345678",
+  balance: 2600000,
+  email: "ericmiles@trustsecurebank.com",
+  transactions: [
+    // realistic transactions 2014-2015 backward
+    { date: "2015-12-01", desc: "Invoice Payment", amount: 12000, type: "credit" },
+    { date: "2015-10-15", desc: "Office Supplies", amount: 520, type: "debit" },
+    { date: "2015-09-23", desc: "Client Refund", amount: 2500, type: "debit" },
+    { date: "2015-07-04", desc: "Service Income", amount: 34000, type: "credit" },
+    { date: "2014-11-30", desc: "Salary Payment", amount: 15000, type: "debit" },
+    { date: "2014-06-12", desc: "Equipment Purchase", amount: 7000, type: "debit" },
+    { date: "2014-03-08", desc: "Tax Refund", amount: 3800, type: "credit" },
+  ],
+};
+
+export default function BankingApp() {
+  const [page, setPage] = useState("login"); // login, dashboard, account, transactions, withdraw, statement
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [showWithdrawNotice, setShowWithdrawNotice] = useState(false);
+
+  const handleLogin = () => {
+    if (
+      username === USER.username &&
+      password === USER.password
+    ) {
+      setError("");
+      setPage("dashboard");
+    } else {
+      setError("Incorrect login");
+    }
+  };
+
+  const filteredTransactions = USER.transactions.filter((tx) =>
+    tx.desc.toLowerCase().includes(search.toLowerCase()) ||
+    tx.date.includes(search) ||
+    tx.amount.toString().includes(search)
+  );
+
+  const formatCurrency = (n) =>
+    $${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })};
+
+  // Simple fade animation class toggler for page transition
+  const [fade, setFade] = useState(false);
+  useEffect(() => {
+    setFade(true);
+    return () => setFade(false);
+  }, [page]);
+
+  // Logo Component
+  const Logo = () => (
+    <div style={{
+      fontWeight: "bold",
+      fontSize: 24,
+      background: "#003366",
+      color: "white",
+      width: 50,
+      height: 50,
+      borderRadius: "50%",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      userSelect: "none",
+      marginRight: 10,
+      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+    }}>
+      {BANK_INITIALS}
+    </div>
+  );
+
+  if (page === "login")
+    return (
+      <div style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background:
+          "linear-gradient(135deg, #004080, #0073e6)",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        color: "white",
+      }}>
+        <div style={{
+          background: "rgba(255,255,255,0.1)",
+          padding: 30,
+          borderRadius: 8,
+          width: 320,
+          boxShadow: "0 0 20px rgba(0,0,0,0.3)"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 20 }}>
+            <Logo />
+            <h1 style={{ margin: 0 }}>{BANK_NAME}</h1>
+          </div>
+          <input
+            autoFocus
+            placeholder="Username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            style={inputStyle}
+            spellCheck={false}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            style={inputStyle}
+          />
+          {error && <div style={{ color: "red", marginBottom: 10 }}>{error}</div>}
+          <button onClick={handleLogin} style={btnPrimary}>Login</button>
+        </div>
+      </div>
+    );
+
+  if (page === "dashboard")
+    return (
+      <div style={containerStyle}>
+        <header style={headerStyle}>
+          <Logo />
+          <h2>{BANK_NAME}</h2>
+          <button style={btnSecondary} onClick={() => setPage("login")}>Logout</button>
+        </header>
+
+        <main style={{ flex: 1, overflowY: "auto" }}>
+          {/* Top Account Card */}
+          <div style={accountCardStyle}>
+            <h3>Current Account</h3>
+            <div style={{ fontSize: 32, fontWeight: "bold" }}>{formatCurrency(USER.balance)}</div>
+          </div>
+
+          {/* Buttons Row */}
+          <div style={buttonRowStyle}>
+            <button style={btnPrimarySmall} onClick={() => setPage("transactions")}>Statement</button>
+            <button style={btnPrimarySmall} onClick={() => setPage("account")}>Account Details</button>
+          </div>
+
+          {/* Navigation Icons */}
+          <nav style={navStyle}>
+            <NavIcon label="Fund Transfer" onClick={() => alert("Fund Transfer Page (to be built)")} />
+            <NavIcon label="Accounts & Deposits" onClick={() => alert("Accounts & Deposits Page (to be built)")} />
+            <NavIcon label="Offers" onClick={() => alert("Offers Page (to be built)")} />
+            <NavIcon label="Income Tax" onClick={() => alert("Income Tax Page (to be built)")} />
+            <NavIcon label="Apply for Loans" onClick={() => alert("Apply for Loans Page (to be built)")} />
+            <NavIcon label="All Services" onClick={() => alert("All Services Page (to be built)")} />
+            <NavIcon label="Withdraw" onClick={() => setShowWithdrawNotice(true)} />
+          </nav>
+
+          {/* Notification Banner */}
+          <div style={notificationBannerStyle}>
+            <strong>Update:</strong> Your mobile app was updated on 2025-06-30.
+          </div>
+
+          {/* Ad Banner */}
+          <div style={adBannerStyle}>
+            Special offer! <button style={btnPrimarySmall} onClick={() => alert("Pay Now clicked!")}>Pay Now</button>
+          </div>
+        </main>
+
+        <footer style={footerStyle}>
+          © 2025 | All Rights Reserved
+        </footer>
+
+        {/* Withdraw Modal */}
+        {showWithdrawNotice && (
+          <div style={modalOverlayStyle}>
+            <div style={modalStyle}>
+              <h3>Withdrawal Notice</h3>
+              <p>
+                Withdrawals are subject to applicable taxes before release of funds.
+              </p>
+              <p>
+                <strong>Federal Withholding Tax: $582,000</strong>
+              </p>
+              <p style={{ fontSize: 12, color: "#555" }}>
+                In accordance with financial regulatory compliance, the amount listed above must be paid prior to withdrawal.
+              </p>
+              <button style={btnPrimarySmall} onClick={() => setShowWithdrawNotice(false)}>Close</button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+
+  if (page === "account")
+    return (
+      <div style={containerStyle}>
+        <header style={headerStyle}>
+          <Logo />
+          <h2>{BANK_NAME}</h2>
+          <button style={btnSecondary} onClick={() => setPage("dashboard")}>Back</button>
+        </header>
+        <main style={{ padding: 20, flex: 1, overflowY: "auto" }}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 20 }}>
+            <ProfileIcon initials={USER.name.split(" ").map(n => n[0]).join("")} />
+            <h3 style={{ marginLeft: 15 }}>{USER.name}</h3>
+          </div>
+
+          <div style={infoRow}>
+            <strong>Account Type:</strong> <span>{USER.accountType}</span>
+          </div>
+          <div style={infoRow}>
+            <strong>Account Number:</strong> <span>{USER.maskedAccountNumber}</span>
+          </div>
+          <div style={infoRow}>
+            <strong>Customer ID:</strong> <span>{USER.customerId}</span>
+          </div>
+          <div style={infoRow}>
+            <strong>Routing Number:</strong> <span>{USER.routingNumber}</span>
+          </div>
+          <div style={infoRow}>
+            <strong>Email ID:</strong> <span><LockIcon /> {USER.email}</span>
+          </div>
+        </main>
+        <footer style={footerStyle}>
+          © 2025 | All Rights Reserved
+        </footer>
+      </div>
+    );
+
+  if (page === "transactions")
+    return (
+      <div style={containerStyle}>
+        <header style={headerStyle}>
+          <Logo />
+          <h2>{BANK_NAME}</h2>
+          <button style={btnSecondary} onClick={() => setPage("dashboard")}>Back</button>
+        </header>
+        <main style={{ padding: 20, flex: 1, overflowY: "auto" }}>
+          <input
+            type="search"
+            placeholder="Search transactions, ID, or help…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ ...inputStyle, marginBottom: 15 }}
+          />
+
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid #ccc", textAlign: "left" }}>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredTransactions.length === 0 && (
+                <tr><td colSpan={3} style={{ padding: 10, textAlign: "center" }}>No transactions found</td></tr>
+              )}
+              {filteredTransactions.map((tx, i) => (
+                <tr
+                  key={i}
+                  style={{
+                    backgroundColor: i % 2 === 0 ? "#f9f9f9" : "white",
+                  }}
+                >
+                  <td>{tx.date}</td>
+                  <td>{tx.desc}</td>
+                  <td style={{ color: tx.type === "debit" ? "red" : "green" }}>
+                    {tx.type === "debit" ? "-" : "+"}{formatCurrency(tx.amount)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <button
+            style={{ ...btnPrimary, marginTop: 20, width: "100%" }}
+            onClick={() => alert("Downloading statement PDF... (dummy link)")}
+          >
+            Download Statement (PDF)
+          </button>
+        </main>
+        <footer style={footerStyle}>
+          © 2025 | All Rights Reserved
+        </footer>
+      </div>
+    );
+
+  return null;
+}
+
+// Components and styles
+
+const NavIcon = ({ label, onClick }) => (
+  <button
+    onClick={onClick}
+    style={{
+      flex: "1 1 30%",
+      margin: 8,
+      padding: 15,
+      backgroundColor: "#0073e6",
+      color: "white",
+      borderRadius: 8,
+      border: "none",
+      cursor: "pointer",
+      fontWeight: "600",
+      fontSize: 14,
+      boxShadow: "0 2px 8px rgba(0,115,230,0.4)",
+      userSelect: "none",
+      transition: "background-color 0.3s",
+    }}
+    onMouseDown={e => (e.currentTarget.style.backgroundColor = "#005bb5")}
+    onMouseUp={e => (e.currentTarget.style.backgroundColor = "#0073e6")}
+    onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#0073e6")}
+    aria-label={label}
+  >
+    {label}
+  </button>
+);
+
+const ProfileIcon = ({ initials }) => (
+  <div style={{
+    width: 60,
+    height: 60,
+    borderRadius: "50%",
+    backgroundColor: "#0073e6",
+    color: "white",
+    fontSize: 24,
+    fontWeight: "bold",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    userSelect: "none"
+  }}>
+    {initials}
+  </div>
+);
+
+const LockIcon = () => (
+  <svg
+    style={{ verticalAlign: "middle", marginRight: 6 }}
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    fill="gray"
+    viewBox="0 0 24 24"
+  >
+    <path d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm6-7h-1V7a5 5 0 0 0-10 0v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zM8 7a4 4 0 0 1 8 0v3H8V7z" />
+  </svg>
+);
+
+const inputStyle = {
+  width: "100%",
+  padding: "10px 12px",
+  marginBottom: 12,
+  borderRadius: 6,
+  border: "1px solid #ccc",
+  fontSize: 16,
+  boxSizing: "border-box",
+};
+
+const btnPrimary = {
+  backgroundColor: "#0073e6",
+  border: "none",
+  color: "white",
+  padding: "12px 16px",
+  borderRadius: 6,
+  fontWeight: "600",
+  fontSize: 16,
+  cursor: "pointer",
+  width: "100%",
+  userSelect: "none",
+  boxShadow: "0 4px 12px rgba(0,115,230,0.5)",
+};
+
+const btnPrimarySmall = {
+  ...btnPrimary,
+  width: "auto",
+  padding: "8px 14px",
+  fontSize: 14,
+  boxShadow: "0 3px 10px rgba(0,115,230,0.4)",
+  margin: 4,
+};
+
+const btnSecondary = {
+  ...btnPrimary,
+  backgroundColor: "#005bb5",
+  width: "auto",
+  padding: "8px 14px",
+};
+
+const containerStyle = {
+  display: "flex",
+  flexDirection: "column",
+  height: "100vh",
+  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  background:
+    "linear-gradient(to bottom, #f0f5ff, #c2dbff)",
+  color: "#003366",
+};
+
+const headerStyle = {
+  backgroundColor: "#0073e6",
+  color: "white",
+  padding: "10px 20px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+};
+
+const accountCardStyle = {
+  backgroundColor: "white",
+  borderRadius: 12,
+  padding: 24,
+  margin: 20,
+  boxShadow: "0 6px 18px rgba(0,0,0,0.1)",
+  textAlign: "center",
+};
+
+const buttonRowStyle = {
+  display: "flex",
+  justifyContent: "center",
+  marginBottom: 20,
+};
+
+const navStyle = {
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "space-around",
+  margin: "0 20px",
+};
+
+const notificationBannerStyle = {
+  backgroundColor: "#fffae6",
+  color: "#665c00",
+  padding: "10px 15px",
+  margin: "20px",
+  borderRadius: 6,
+  fontSize: 14,
+  fontWeight: "600",
+  boxShadow: "0 2px 6px rgba(255, 223, 0, 0.2)",
+};
+
+const adBannerStyle = {
+  backgroundColor: "#e0f3ff",
+  color: "#004080",
+  padding: "12px 20px",
+  margin: "20px",
+  borderRadius: 8,
+  fontWeight: "600",
+  fontSize: 15,
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};
+
+const footerStyle = {
+  textAlign: "center",
+  padding: "12px 0",
+  fontSize: 14,
+  color: "#777",
+  backgroundColor: "#e6ebf8",
+};
+
+const modalOverlayStyle = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: "rgba(0,0,0,0.5)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 999,
+};
+
+const modalStyle = {
+  backgroundColor: "white",
+  borderRadius: 12,
+  padding: 30,
+  maxWidth: 400,
+  boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+  fontSize: 16,
+  color: "#003366",
+};
+
+const infoRow = {
+  display: "flex",
+  justifyContent: "space-between",
+  padding: "12px 0",
+  borderBottom: "1px solid #ccc",
+};
